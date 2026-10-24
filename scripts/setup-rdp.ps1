@@ -45,8 +45,27 @@ if ($u.ToLower() -eq 'runneradmin') {
   }
   try { Set-LocalUser -Name $u -PasswordNeverExpires $true -AccountNeverExpires -ErrorAction SilentlyContinue } catch {}
 } else {
-  if (Get-LocalUser -Name $u -ErrorAction SilentlyContinue) { Remove-LocalUser -Name $u }
-  New-LocalUser -Name $u -Password $sp -FullName 'XyRDP Admin' -PasswordNeverExpires -AccountNeverExpires -Description 'XyRDP remote user' | Out-Null
+  try {
+    $existingUser = Get-LocalUser -Name $u -ErrorAction SilentlyContinue
+
+    if ($existingUser) {
+      Remove-LocalUser -Name $u -ErrorAction Stop
+    }
+
+    New-LocalUser -Name $u `
+      -Password $sp `
+      -FullName 'XyRDP Admin' `
+      -PasswordNeverExpires `
+      -AccountNeverExpires `
+      -Description 'XyRDP remote user' `
+      -ErrorAction Stop | Out-Null
+
+    Get-LocalUser -Name $u -ErrorAction Stop | Out-Null
+    Log "Akun '$u' berhasil dibuat."
+  } catch {
+    Log "ERROR: Pembuatan akun '$u' gagal: $($_.Exception.Message)"
+    exit 1
+  }
 }
 Add-LocalGroupMember -Group 'Administrators'         -Member $u -ErrorAction SilentlyContinue
 Add-LocalGroupMember -Group 'Remote Desktop Users'   -Member $u -ErrorAction SilentlyContinue
