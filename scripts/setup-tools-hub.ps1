@@ -9,7 +9,7 @@
 #    2. Installer Aplikasi (Chrome, Brave, Discord, VLC, 7-Zip, Runtime Game, Wallpaper)
 #    3. Roblox Anti-VM & 120 FPS (Bypass VM Detection, Direct3D 11, Bloxstrap)
 #    4. GTA SA-MP (Runtime DX9, SilentPatch 90 FPS, Anti-Ban GPCI/WARP, Nickname)
-#    5. Minecraft Java & Bedrock (TLauncher, PrismLauncher, Mesa3D OpenGL 4.6)
+#    5. Minecraft Java (PrismLauncher, Java, Mesa3D OpenGL 4.6)
 # ============================================================================
 
 $XyTag = 'XyRDP:dashboard'
@@ -309,17 +309,6 @@ namespace XyDeskTools
             ));
 
             page.Controls.Add(CreateActionButton(
-                "5. Install / Buka MEmu Emulator & Euro Truck Simulator 2 (Free)",
-                "Pasang MEmu Android Emulator & ETS 2 Free Edition (OpenGL 4.6 Ready)",
-                Color.FromArgb(16, 185, 129), 16, 196, w, 68,
-                (s, e) => RunPowerShellTask("Menyiapkan MEmu Emulator & Euro Truck Simulator 2 Free...", @"
-                    if (Test-Path 'C:\Games\MEmu\Launch-MEmu.ps1') { & 'C:\Games\MEmu\Launch-MEmu.ps1' }
-                    if (Test-Path 'C:\Games\ETS2\Launch-ETS2-Free.ps1') { & 'C:\Games\ETS2\Launch-ETS2-Free.ps1' }
-                    Write-Host 'MEmu Emulator & Euro Truck Simulator 2 Free siap di Desktop!'
-                ")
-            ));
-
-            page.Controls.Add(CreateActionButton(
                 "6. Install / Buka Blender 3D Studio (Mesa3D OpenGL 4.6)",
                 "Pasang & jalankan Blender 3D Portable dengan akselerator OpenGL 4.6",
                 Color.FromArgb(234, 88, 12), 432, 196, w, 68,
@@ -561,10 +550,10 @@ namespace XyDeskTools
         {
             int w = 400, h = 76;
             page.Controls.Add(CreateActionButton(
-                "1. Install / Perbarui TLauncher & PrismLauncher (Java 21 & 8)",
-                "Pasang TLauncher Cracked & PrismLauncher Modpack di C:\\Games",
+                "1. Install / Perbarui PrismLauncher (Java 21 & 8)",
+                "Pasang PrismLauncher dan Java 21 & 8 di C:\\Games",
                 Color.FromArgb(16, 185, 129), 16, 16, w, h,
-                (s, e) => RunPowerShellTask("Memasang TLauncher + PrismLauncher + Java 21 & 8...", @"$env:MINECRAFT_JAVA='ya'; & 'C:\XyRDP\scripts\setup-games.ps1'")
+                (s, e) => RunPowerShellTask("Memasang PrismLauncher + Java 21 & 8...", @"$env:MINECRAFT_JAVA='ya'; & 'C:\XyRDP\scripts\setup-games.ps1'")
             ));
 
             page.Controls.Add(CreateActionButton(
@@ -578,13 +567,6 @@ namespace XyDeskTools
                         & 'C:\XyRDP\grafis\Deploy-OpenGL-To-Java.ps1'
                     }
                 ")
-            ));
-
-            page.Controls.Add(CreateActionButton(
-                "3. Install Official Minecraft Launcher (Bedrock & Java)",
-                "Unduh & pasang MinecraftInstaller resmi dari Xbox/Mojang",
-                Color.FromArgb(245, 158, 11), 16, 106, w, h,
-                (s, e) => RunPowerShellTask("Memasang Official Minecraft Launcher...", @"$env:MINECRAFT_BEDROCK='ya'; & 'C:\XyRDP\scripts\setup-games.ps1'")
             ));
 
             page.Controls.Add(CreateActionButton(

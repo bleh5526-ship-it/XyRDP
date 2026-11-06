@@ -23,7 +23,7 @@ jobs:
           }
       - name: Install and verify dependencies without game or RDP session
         shell: pwsh
-        run: ./scripts/setup-samp.ps1
+        run: ./scripts/setup-samp.ps1 -DirectXOnly
       - name: Verify repeated DirectX install is idempotent
         shell: pwsh
         run: ./scripts/setup-samp.ps1 -DirectXOnly

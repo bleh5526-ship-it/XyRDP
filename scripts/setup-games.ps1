@@ -26,7 +26,6 @@ function Test-OptIn([string]$Val) {
 
 $wantRoblox  = Test-OptIn $env:ROBLOX
 $wantMcJava  = Test-OptIn $env:MINECRAFT_JAVA
-$wantMcBed   = Test-OptIn $env:MINECRAFT_BEDROCK
 
 $work = 'C:\XyRDP\deps\games'
 New-Item -ItemType Directory -Path $work -Force | Out-Null
@@ -1443,65 +1442,132 @@ if ($found) {
   }
 }
 
+
+function Install-XyOptionalApps {
+  $apps = @(
+    @{
+      Name = 'BlueStacks 5'
+      Id = 'BlueStack.BlueStacks'
+      Paths = @(
+        'C:\Program Files\BlueStacks_nxt\HD-Player.exe',
+        'C:\Program Files\BlueStacks\HD-Player.exe'
+      )
+    },
+    @{
+      Name = 'Audacity'
+      Id = 'Audacity.Audacity'
+      Paths = @(
+        'C:\Program Files\Audacity\Audacity.exe',
+        'C:\Program Files (x86)\Audacity\Audacity.exe'
+      )
+    }
+  )
+
+  $result = @{}
+  $wg = Get-Command winget.exe -ErrorAction SilentlyContinue
+
+  foreach ($app in $apps) {
+    $exe = $null
+
+    foreach ($candidate in $app.Paths) {
+      if (Test-Path $candidate) {
+        $exe = $candidate
+        break
+      }
+    }
+
+    if ($exe) {
+      $result[$app.Name] = @{
+        status = 'already_installed'
+        path = $exe
+      }
+      continue
+    }
+
+    if (-not $wg) {
+      $result[$app.Name] = @{
+        status = 'skipped_winget_unavailable'
+      }
+      continue
+    }
+
+    $exitCode = -1
+
+    try {
+      & $wg.Source install --id $app.Id --exact --silent `
+        --accept-package-agreements --accept-source-agreements `
+        --disable-interactivity 2>&1 | Out-Null
+
+      $exitCode = $LASTEXITCODE
+    }
+    catch {
+      Log "Gagal menjalankan installer $($app.Name): $_"
+    }
+
+    $exe = $null
+
+    foreach ($candidate in $app.Paths) {
+      if (Test-Path $candidate) {
+        $exe = $candidate
+        break
+      }
+    }
+
+    if ($exe) {
+      $result[$app.Name] = @{
+        status = 'installed'
+        path = $exe
+      }
+      Log "$($app.Name) berhasil diverifikasi."
+    }
+    else {
+      $result[$app.Name] = @{
+        status = 'install_failed'
+        exit_code = $exitCode
+      }
+      Log "$($app.Name) belum berhasil diverifikasi. Exit code: $exitCode"
+    }
+  }
+
+  return $result
+}
+
 $report = @{}
 
-# Selalu siapkan Minecraft Java Suite (TL Launcher + PrismLauncher + Official Launcher + OpenGL 4.6 Injection)
-# karena ukuran totalnya hanya ~32 MB (~4 detik di runner) sehingga Minecraft SELALU bisa dibuka di XyRDP!
-Log 'Menyiapkan Minecraft Java Edition (Java 21/8 + TL Launcher + PrismLauncher + Mesa3D OpenGL 4.6)...'
+Log 'Menyiapkan Minecraft Java (Java + PrismLauncher + Mesa3D OpenGL 4.6)...'
 Install-JavaRuntimesForMinecraft -InstallMsiIfMissing:$wantMcJava
 $prismOk = Install-PrismLauncherPortable
-Install-MinecraftLaunchersSuite
 Configure-MinecraftOpenGLAndOptions
 
 $report['minecraft_java'] = @{
-  status        = 'ready'
+  status = 'ready'
   prismlauncher = $prismOk
-  tlauncher_jar = (Test-Path 'C:\Games\Minecraft\TL.jar')
-  official_exe  = (Test-Path 'C:\Games\Minecraft\MinecraftLauncher.exe')
-  opengl46      = (Test-Path 'C:\XyRDP\grafis\mesa-x64\opengl32.dll')
+  opengl46 = (Test-Path 'C:\XyRDP\grafis\mesa-x64\opengl32.dll')
 }
 
-# 2. Minecraft Bedrock & Official MSI Installer (bila dipilih)
-if ($wantMcBed) {
-  Log 'Menyiapkan Minecraft Bedrock & Xbox Identity Dependencies...'
-  try {
-    $wg = Get-Command winget.exe -ErrorAction SilentlyContinue
-    if ($wg) {
-      & winget install --id Mojang.MinecraftLauncher --silent --accept-package-agreements --accept-source-agreements --disable-interactivity 2>&1 | Out-Null
-    }
-  } catch {}
-  $mcMsi = Join-Path $work 'MinecraftInstaller.msi'
-  if (Invoke-GameDownload 'https://launcher.mojang.com/download/MinecraftInstaller.msi' $mcMsi 1000000) {
-    Start-Process -FilePath 'msiexec.exe' -ArgumentList @('/i', "`"$mcMsi`"", '/qn', '/norestart') -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue | Out-Null
-    $report['minecraft_bedrock'] = @{ status = 'installed'; path = $mcMsi }
-  }
-}
-
-# 3. Selalu siapkan Roblox Anti-VM Suite + Shortcut Unik di Desktop
-Log 'Menyiapkan Roblox Player & Studio (instalasi resmi, tanpa spoofing/bypass)...'
+Log 'Menyiapkan Roblox Player & Studio...'
 Install-RobloxAntiVmSuite
 $report['roblox'] = @{
-  status   = 'installer_ready'
+  status = 'installer_ready'
   launcher = 'C:\Games\Roblox\Launch-Roblox-AntiVM.ps1'
-  catatan  = 'Instalasi resmi Roblox siap. VM dapat ditolak anti-cheat Roblox; tidak ada spoofing BIOS/bypass.'
 }
 
-# 4. Selalu siapkan Shortcut Aplikasi Prank FiveM (Ikon FiveM + Popup Prank + Sound Voicemod Tuna)
-Log 'Menyiapkan Shortcut FiveM di Desktop...'
+Log 'Menyiapkan Shortcut FiveM...'
 Install-FiveMPrankApp
 $report['fivem'] = @{
   status = (Test-Path 'C:\Games\FiveM\FiveM.exe')
-  sound  = (Test-Path 'C:\Games\FiveM\fivem_prank.mp3')
+  sound = (Test-Path 'C:\Games\FiveM\fivem_prank.mp3')
 }
 
-# 5. Selalu siapkan MEmu Emulator, Euro Truck Simulator 2 (ETS 2 Free), & Blender 3D Studio
-Log 'Menyiapkan MEmu Android Emulator, Euro Truck Simulator 2 (ETS 2 Free), & Blender 3D Studio...'
-Install-MEmuEmulatorSuite
-Install-EuroTruckSimulator2FreeSuite
+Log 'Menyiapkan Blender 3D Studio...'
 Install-Blender3DSuite
-$report['memu']    = @{ status = 'ready'; launcher = 'C:\Games\MEmu\Launch-MEmu.ps1' }
-$report['ets2']    = @{ status = 'ready'; launcher = 'C:\Games\ETS2\Launch-ETS2-Free.ps1' }
-$report['blender'] = @{ status = 'ready'; launcher = 'C:\Games\Blender\Launch-Blender.ps1' }
+$report['blender'] = @{
+  status = 'ready'
+  launcher = 'C:\Games\Blender\Launch-Blender.ps1'
+}
+
+Log 'Mencoba instalasi BlueStacks 5 dan Audacity secara silent...'
+$report['optional_apps'] = Install-XyOptionalApps
 
 Update-Status @{ games = $report } | Out-Null
 exit 0

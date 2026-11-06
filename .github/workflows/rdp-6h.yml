@@ -324,20 +324,13 @@ jobs:
         continue-on-error: true
         run: ./scripts/setup-grafis.ps1
 
-      - name: Runtime All-Software 2026 & GTA SA-MP By SilentPatch
-        if: ${{ !startsWith(inputs.runner || 'windows-2022', 'ubuntu') && (inputs.samp || 'ya') != 'tidak' }}
+      - name: DirectX Runtime
+        if: ${{ !startsWith(inputs.runner || 'windows-2022', 'ubuntu') }}
         shell: pwsh
         continue-on-error: true
-        run: ./scripts/setup-samp.ps1
+        run: ./scripts/setup-samp.ps1 -DirectXOnly
 
-      - name: Reset Anti-Ban SAMP (GPCI / HWID baru)
-        timeout-minutes: 10
-        if: ${{ !startsWith(inputs.runner || 'windows-2022', 'ubuntu') && (inputs.samp_antiban || 'tidak') == 'ya' }}
-        shell: pwsh
-        continue-on-error: true
-        run: ./scripts/setup-samp-antiban.ps1
-
-      - name: Pasang Suite Game & Studio (Minecraft, Roblox, ETS 2, Blender, MEmu, FiveM)
+      - name: Pasang Suite Aplikasi (PrismLauncher, Roblox, BlueStacks 5, Audacity, Blender, FiveM)
         if: ${{ !startsWith(inputs.runner || 'windows-2022', 'ubuntu') }}
         shell: pwsh
         continue-on-error: true

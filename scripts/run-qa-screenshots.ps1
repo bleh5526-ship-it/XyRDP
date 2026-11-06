@@ -690,9 +690,9 @@ if (Test-Path 'C:\Games\Roblox\RobloxPlayerLauncher.exe') {
 }
 
 # ============================================================================
-# 7. Uji & Screenshot: PLAY Minecraft (PrismLauncher Main Dashboard + TLauncher Main Screen)
+# 7. Uji & Screenshot: Minecraft PrismLauncher
 # ============================================================================
-Write-Host "=== 7. Menguji & Screenshot PrismLauncher & TLauncher (TL.jar) ==="
+Write-Host "=== 7. Menguji & Screenshot Minecraft PrismLauncher ==="
 if (Test-Path 'C:\Games\PrismLauncher\prismlauncher.exe') {
   $pPrism = Start-Process -FilePath 'C:\Games\PrismLauncher\prismlauncher.exe' -WorkingDirectory 'C:\Games\PrismLauncher' -PassThru
   Start-Sleep -Seconds 4

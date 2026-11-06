@@ -41,7 +41,7 @@ function Sync-And-Heal-DesktopShortcuts {
       $wsh = New-Object -ComObject WScript.Shell
 
       # Bersihkan shortcut duplikat/lama atau sampah bawaan image runner
-      foreach ($oldItem in @('XyDeskTools.exe', 'XyDesk Gaming & Tools Hub.lnk', 'Simpan Data & Game Sekarang.lnk', 'Minecraft (TLauncher).lnk', 'PrismLauncher (Minecraft).lnk', 'GTA SAMP.lnk', 'SA-MP 0.3.7-R5 Server Browser.lnk', 'Patch GTA SA-MP (SilentPatch).lnk', 'Atasi Banned & Anti-VPN SAMP.lnk', 'Install Roblox Player.exe', 'Epic Games Launcher.lnk', 'R 4.6.1.lnk', 'Unity Hub.lnk')) {
+      foreach ($oldItem in @('XyDeskTools.exe', 'XyDesk Gaming & Tools Hub.lnk', 'Simpan Data & Game Sekarang.lnk', 'Minecraft (TLauncher).lnk', 'TLauncher (Minecraft Cracked).lnk', 'Minecraft Official Launcher.lnk', 'PrismLauncher (Minecraft).lnk', 'GTA SAMP.lnk', 'SA-MP 0.3.7-R5 Server Browser.lnk', 'Patch GTA SA-MP (SilentPatch).lnk', 'Atasi Banned & Anti-VPN SAMP.lnk', 'Install Roblox Player.exe', 'Epic Games Launcher.lnk', 'R 4.6.1.lnk', 'Unity Hub.lnk')) {
         Remove-Item -LiteralPath (Join-Path $desk $oldItem) -Force -ErrorAction SilentlyContinue
       }
 
@@ -102,8 +102,6 @@ function Sync-And-Heal-DesktopShortcuts {
 
       # 5. Shortcut MEmu Emulator, Euro Truck Simulator 2 Free, & Blender 3D (100% Ikon Asli .exe)
       $blenderExe = (Get-ChildItem -Path 'C:\Games\Blender' -Recurse -File -Filter 'blender.exe' -ErrorAction SilentlyContinue | Select-Object -First 1)
-      $etsExe     = 'C:\Games\ETS2\bin\win_x86\eurotrucks2.exe'
-      $memuExe    = if (Test-Path 'C:\Program Files\Microvirt\MEmu\MEmuConsole.exe') { 'C:\Program Files\Microvirt\MEmu\MEmuConsole.exe' } else { 'C:\Games\MEmu\MEmu-Setup.exe' }
 
       if ($blenderExe) {
         $lnkB = Join-Path $desk 'Blender 3D.lnk'
@@ -117,31 +115,41 @@ function Sync-And-Heal-DesktopShortcuts {
         }
       }
 
-      if (Test-Path $etsExe) {
-        $lnkE = Join-Path $desk 'Euro Truck Simulator 2.lnk'
-        if (-not (Test-Path $lnkE)) {
-          $scE = $wsh.CreateShortcut($lnkE)
-          $scE.TargetPath = $etsExe
-          $scE.Arguments = '-nofullscreen -nointro'
-          $scE.WorkingDirectory = (Split-Path $etsExe -Parent)
-          $scE.IconLocation = "$etsExe,0"
-          $scE.Description = 'Euro Truck Simulator 2 (Ready-to-Play di XyRDP)'
-          $scE.Save()
-        }
+
+      # Shortcut BlueStacks 5
+      $blueExe = @(
+        'C:\Program Files\BlueStacks_nxt\HD-Player.exe',
+        'C:\Program Files\BlueStacks\HD-Player.exe'
+      ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+      if ($blueExe) {
+        $lnkBlue = Join-Path $desk 'BlueStacks 5.lnk'
+        $scBlue = $wsh.CreateShortcut($lnkBlue)
+        $scBlue.TargetPath = $blueExe
+        $scBlue.WorkingDirectory = Split-Path $blueExe -Parent
+        $scBlue.IconLocation = "$blueExe,0"
+        $scBlue.Description = 'BlueStacks 5 Android Emulator'
+        $scBlue.Save()
       }
 
-      if (Test-Path 'C:\Games\MEmu\Launch-MEmu.ps1') {
-        $lnkM = Join-Path $desk 'MEmu Emulator.lnk'
-        if (-not (Test-Path $lnkM)) {
-          $scM = $wsh.CreateShortcut($lnkM)
-          $scM.TargetPath = 'powershell.exe'
-          $scM.Arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "C:\Games\MEmu\Launch-MEmu.ps1"'
-          $scM.WorkingDirectory = 'C:\Games\MEmu'
-          if (Test-Path $memuExe) { $scM.IconLocation = "$memuExe,0" }
-          $scM.Description = 'MEmu Play Android Emulator'
-          $scM.Save()
-        }
+      # Shortcut Audacity
+      $audacityExe = @(
+        'C:\Program Files\Audacity\Audacity.exe',
+        'C:\Program Files (x86)\Audacity\Audacity.exe'
+      ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+      if ($audacityExe) {
+        $lnkAud = Join-Path $desk 'Audacity.lnk'
+        $scAud = $wsh.CreateShortcut($lnkAud)
+        $scAud.TargetPath = $audacityExe
+        $scAud.WorkingDirectory = Split-Path $audacityExe -Parent
+        $scAud.IconLocation = "$audacityExe,0"
+        $scAud.Description = 'Audacity Audio Editor'
+        $scAud.Save()
       }
+
+
+
     }
   } catch {}
 }
